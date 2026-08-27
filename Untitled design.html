@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ฐานข้อมูลสปอนเซอร์ | สโมสรนิสิตคณะเกษตร</title>
+<style>
+:root {
+  --green:#1f7a4c; --green-dark:#14532d; --green-soft:#eaf7ef;
+  --bg:#f5f7f6; --text:#1f2937; --muted:#6b7280; --border:#e5e7eb;
+  --card:#ffffff; --shadow:0 10px 28px rgba(0,0,0,.07); --radius:18px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Noto Sans Thai","Segoe UI",Tahoma,sans-serif;line-height:1.6}
+a{text-decoration:none;color:inherit}
+header{background:linear-gradient(135deg,#14532d,#1f7a4c,#34a06a);color:white;padding:52px 20px 84px}
+.header-inner{max-width:1200px;margin:auto}
+.badge{display:inline-block;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);padding:6px 12px;border-radius:999px;font-size:13px;margin-bottom:14px}
+h1{font-size:clamp(30px,5vw,50px);line-height:1.15;margin:0 0 12px}
+.header-inner p{max-width:760px;margin:0;opacity:.92;font-size:16px}
+main{max-width:1200px;margin:-38px auto 60px;padding:0 18px}
+.toolbar{background:white;padding:18px;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:28px}
+.search{width:100%;padding:14px 16px;border:1px solid var(--border);border-radius:13px;font-size:16px;outline:none}
+.search:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(31,122,76,.09)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.filter{border:1px solid var(--border);background:#fff;border-radius:999px;padding:9px 13px;cursor:pointer}
+.filter.active,.filter:hover{background:var(--green);color:#fff;border-color:var(--green)}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:30px}
+.summary-card{background:#fff;border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+.summary-card small{display:block;color:var(--muted)} .summary-card strong{font-size:28px;color:var(--green)}
+.category-section{margin-bottom:38px}
+.section-title{display:flex;align-items:center;gap:11px;margin-bottom:14px}
+.icon{width:46px;height:46px;background:var(--section-bg);border-radius:13px;display:grid;place-items:center;font-size:23px}
+.section-title h2{margin:0;font-size:22px} .count{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:.18s;box-shadow:0 4px 16px rgba(0,0,0,.035)}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.card-top{display:flex;justify-content:space-between;gap:10px;margin-bottom:12px}
+.brand{font-weight:800;font-size:19px} .company{font-size:13px;color:var(--muted);margin-top:2px}
+.tag{white-space:nowrap;font-size:11px;padding:4px 8px;border-radius:999px;height:max-content}
+.tag.ok{background:#dcfce7;color:#166534} .tag.check{background:#f3f4f6;color:#6b7280}
+.info-list{display:flex;flex-direction:column;gap:8px}
+.info{display:flex;gap:8px;font-size:14px} .info.muted{color:var(--muted)}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}
+.btn{display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--border);border-radius:9px;padding:8px 11px;font-size:13px;background:#fff}
+.btn:hover{border-color:var(--green);color:var(--green)} .btn.primary{background:var(--green);color:#fff;border-color:var(--green)}
+.empty{display:none;background:#fff;border-radius:var(--radius);padding:45px;text-align:center;color:var(--muted)}
+.note{margin:18px 0 28px;padding:14px 16px;background:#fff8e8;border:1px solid #f4e0a7;border-radius:13px;color:#6b4f00;font-size:13px}
+footer{padding:30px 18px;text-align:center;color:var(--muted);font-size:12px}
+.hidden{display:none !important}
+@media(max-width:950px){.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:650px){.summary{grid-template-columns:1fr} .grid{grid-template-columns:1fr} header{padding:40px 18px 72px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="badge">AGRICULTURE STUDENT CLUB</div>
+    <h1>ฐานข้อมูลสปอนเซอร์</h1>
+    <p>รวมรายชื่อแบรนด์ แยกหมวดหมู่ พร้อมช่องทางติดต่อสำหรับเสนอขอการสนับสนุนกิจกรรมนิสิต</p>
+  </div>
+</header>
+
+<main>
+  <div class="toolbar">
+    <input id="search" class="search" type="search" placeholder="ค้นหาแบรนด์ เช่น MizuMi, Farmhouse, Pepsi..." autocomplete="off">
+    <div class="filters"><button class="filter active" data-filter="all">ทั้งหมด</button><button class="filter" data-filter="ครีมอาบน้ำ">ครีมอาบน้ำ</button><button class="filter" data-filter="ยาสระผม">ยาสระผม</button><button class="filter" data-filter="ขนม">ขนม</button><button class="filter" data-filter="เครื่องดื่มชูกำลัง">เครื่องดื่มชูกำลัง</button><button class="filter" data-filter="น้ำดื่ม">น้ำดื่ม</button><button class="filter" data-filter="ยาดม">ยาดม</button><button class="filter" data-filter="ครีมกันแดด">ครีมกันแดด</button></div>
+  </div>
+
+  <div class="summary">
+    <div class="summary-card"><small>แบรนด์ทั้งหมด</small><strong id="total">54</strong></div>
+    <div class="summary-card"><small>ช่องทางที่มีข้อมูล</small><strong id="withContact">0</strong></div>
+    <div class="summary-card"><small>หมวดหมู่</small><strong>7</strong></div>
+  </div>
+
+  <div class="note">
+    <strong>หมายเหตุ:</strong> สำหรับการขอสปอนเซอร์ ให้ระบุขอส่งต่อ <strong>ฝ่าย Marketing / CSR / Corporate Communication / ฝ่ายกิจกรรม</strong> และตรวจสอบช่องทางอีกครั้งก่อนส่งหนังสือ เพราะข้อมูลติดต่ออาจมีการเปลี่ยนแปลง
+  </div>
+
+  <div id="content">
+    
+    <section class="category-section" data-category-section="ครีมอาบน้ำ">
+      <div class="section-title" style="--section-bg:#e8f5e9">
+        <div class="icon">🧴</div>
+        <div>
+          <h2>ครีมอาบน้ำ</h2>
+          <div class="count">6 แบรนด์</div>
+        </div>
+      </div>
+      <div class="grid">
+        <article class="card" data-search="benice บริษัท neo ครีมอาบน้ำ" data-category="ครีมอาบน้ำ">
+          <div class="card-top">
+            <div>
+              <div class="brand">Benice</div>
+              <div class="company">บริษัท NEO</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-017-8900</div></div><div class="info"><span>✉️</span><div>customerservices@neo-corporate.com</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:020178900">📞 โทร</a>
+<a class="btn" href="mailto:customerservices@neo-corporate.com">✉️ Email</a>
+<a class="btn" href="https://neo-factory.biz/en/shop/brand/benice" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="protex colgate-palmolive thailand ครีมอาบน้ำ" data-category="ครีมอาบน้ำ">
+          <div class="card-top">
+            <div>
+              <div class="brand">Protex</div>
+              <div class="company">Colgate-Palmolive Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-229-8383 / 1-800-800-900</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:022298383">📞 โทร</a>
+<a class="btn" href="https://www.colgatepalmolive.com/en-us/contact-us" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="dettol reckitt thailand ครีมอาบน้ำ" data-category="ครีมอาบน้ำ">
+          <div class="card-top">
+            <div>
+              <div class="brand">Dettol</div>
+              <div class="company">Reckitt Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 1800-015-073</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:1800015073">📞 โทร</a>
+<a class="btn" href="https://www.reckitt.com/offices/thailand/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="shokubutsu lion thailand ครีมอาบน้ำ" data-category="ครีมอาบน้ำ">
+          <div class="card-top">
+            <div>
+              <div class="brand">Shokubutsu</div>
+              <div class="company">Lion Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-294-0191</div></div><div class="info"><span>✉️</span><div>qad@lion.co.th</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:022940191">📞 โทร</a>
+<a class="btn" href="mailto:qad@lion.co.th">✉️ Email</a>
+<a class="btn" href="https://www.lion.co.th/index.php/contactus" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="lactacyd lactacyd ครีมอาบน้ำ" data-category="ครีมอาบน้ำ">
+          <div class="card-top">
+            <div>
+              <div class="brand">Lactacyd</div>
+              <div class="company">Lactacyd</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อผ่าน Official / Contact Us</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article>
+        <article class="card" data-search="นกแก้ว แบรนด์นกแก้ว ครีมอาบน้ำ" data-category="ครีมอาบน้ำ">
+          <div class="card-top">
+            <div>
+              <div class="brand">นกแก้ว</div>
+              <div class="company">แบรนด์นกแก้ว</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อผ่าน Official / บริษัทเจ้าของแบรนด์</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article></div>
+    </section>
+    <section class="category-section" data-category-section="ยาสระผม">
+      <div class="section-title" style="--section-bg:#eef7ff">
+        <div class="icon">🫧</div>
+        <div>
+          <h2>ยาสระผม</h2>
+          <div class="count">6 แบรนด์</div>
+        </div>
+      </div>
+      <div class="grid">
+        <article class="card" data-search="sunsilk unilever thailand ยาสระผม" data-category="ยาสระผม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Sunsilk</div>
+              <div class="company">Unilever Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Unilever Thailand</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn" href="https://www.unilever.co.th/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="clear unilever thailand ยาสระผม" data-category="ยาสระผม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Clear</div>
+              <div class="company">Unilever Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Unilever Thailand</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn" href="https://www.unilever.co.th/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="dove unilever thailand ยาสระผม" data-category="ยาสระผม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Dove</div>
+              <div class="company">Unilever Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Unilever Thailand</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn" href="https://www.unilever.co.th/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="pantene p&amp;g thailand ยาสระผม" data-category="ยาสระผม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Pantene</div>
+              <div class="company">P&amp;G Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 1800-295-545 / 02-667-5000</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:1800295545">📞 โทร</a>
+<a class="btn" href="https://www.pg.com/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="rejoice p&amp;g thailand ยาสระผม" data-category="ยาสระผม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Rejoice</div>
+              <div class="company">P&amp;G Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 1800-295-545 / Facebook Rejoice Thailand</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:1800295545">📞 โทร</a>
+<a class="btn" href="https://www.pg.com/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="hair it hair it ยาสระผม" data-category="ยาสระผม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Hair It</div>
+              <div class="company">Hair It</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Official / Marketing</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article></div>
+    </section>
+    <section class="category-section" data-category-section="ขนม">
+      <div class="section-title" style="--section-bg:#fff5e8">
+        <div class="icon">🍫</div>
+        <div>
+          <h2>ขนม</h2>
+          <div class="count">10 แบรนด์</div>
+        </div>
+      </div>
+      <div class="grid">
+        <article class="card" data-search="ฟาร์มเฮาส์ president bakery ขนม" data-category="ขนม">
+          <div class="card-top">
+            <div>
+              <div class="brand">ฟาร์มเฮาส์</div>
+              <div class="company">President Bakery</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-209-3000</div></div><div class="info"><span>✉️</span><div>csr@pbplc.co.th</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:022093000">📞 โทร</a>
+<a class="btn" href="mailto:csr@pbplc.co.th">✉️ Email</a>
+<a class="btn" href="https://www.farmhouse.co.th/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="น้ำพริกวับวาว แบรนด์น้ำพริกวับวาว ขนม" data-category="ขนม">
+          <div class="card-top">
+            <div>
+              <div class="brand">น้ำพริกวับวาว</div>
+              <div class="company">แบรนด์น้ำพริกวับวาว</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Official / Marketing</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article>
+        <article class="card" data-search="โคเรียดอง แบรนด์โคเรียดอง ขนม" data-category="ขนม">
+          <div class="card-top">
+            <div>
+              <div class="brand">โคเรียดอง</div>
+              <div class="company">แบรนด์โคเรียดอง</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Official / Marketing</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article>
+        <article class="card" data-search="เปี๊ยะฟินฟิน แบรนด์เปี๊ยะฟินฟิน ขนม" data-category="ขนม">
+          <div class="card-top">
+            <div>
+              <div class="brand">เปี๊ยะฟินฟิน</div>
+              <div class="company">แบรนด์เปี๊ยะฟินฟิน</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Official / Marketing</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article>
+        <article class="card" data-search="kitkat nestlé thailand ขนม" data-category="ขนม">
+          <div class="card-top">
+            <div>
+              <div class="brand">KitKat</div>
+              <div class="company">Nestlé Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 1162 / 02-657-8601</div></div><div class="info"><span>✉️</span><div>Goodfood.Nestle@th.nestle.com</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:1162">📞 โทร</a>
+<a class="btn" href="mailto:Goodfood.Nestle@th.nestle.com">✉️ Email</a>
+<a class="btn" href="https://www.nestle.co.th/en/info" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="sunsu 21sunpassion ขนม" data-category="ขนม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Sunsu</div>
+              <div class="company">21SunPassion</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>Email sunsu.mkt@21sunpassion.com</div></div><div class="info"><span>✉️</span><div>sunsu.mkt@21sunpassion.com</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn" href="mailto:sunsu.mkt@21sunpassion.com">✉️ Email</a>
+<a class="btn" href="https://sunsu.co.th/contact/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="บันบัน แบรนด์บันบัน ขนม" data-category="ขนม">
+          <div class="card-top">
+            <div>
+              <div class="brand">บันบัน</div>
+              <div class="company">แบรนด์บันบัน</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Official / ผู้ผลิต</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article>
+        <article class="card" data-search="โดโซะ glico thailand ขนม" data-category="ขนม">
+          <div class="card-top">
+            <div>
+              <div class="brand">โดโซะ</div>
+              <div class="company">Glico Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Glico Thailand / Official</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn" href="https://www.glico.com/th/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="lay’s pepsico thailand ขนม" data-category="ขนม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Lay’s</div>
+              <div class="company">PepsiCo Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-610-2444</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:026102444">📞 โทร</a>
+<a class="btn" href="https://www.pepsico.co.th/en/our-brands" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="cheetos pepsico thailand ขนม" data-category="ขนม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Cheetos</div>
+              <div class="company">PepsiCo Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-610-2444</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:026102444">📞 โทร</a>
+<a class="btn" href="https://www.pepsico.co.th/en/our-brands" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article></div>
+    </section>
+    <section class="category-section" data-category-section="เครื่องดื่มชูกำลัง">
+      <div class="section-title" style="--section-bg:#fff1e6">
+        <div class="icon">⚡</div>
+        <div>
+          <h2>เครื่องดื่มชูกำลัง</h2>
+          <div class="count">3 แบรนด์</div>
+        </div>
+      </div>
+      <div class="grid">
+        <article class="card" data-search="red bull tcp group เครื่องดื่มชูกำลัง" data-category="เครื่องดื่มชูกำลัง">
+          <div class="card-top">
+            <div>
+              <div class="brand">Red Bull</div>
+              <div class="company">TCP Group</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-415-0100 ต่อ 0</div></div><div class="info"><span>✉️</span><div>info@tcp.com</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:024150100">📞 โทร</a>
+<a class="btn" href="mailto:info@tcp.com">✉️ Email</a>
+<a class="btn" href="https://www.tcp.com/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="sponser osotspa เครื่องดื่มชูกำลัง" data-category="เครื่องดื่มชูกำลัง">
+          <div class="card-top">
+            <div>
+              <div class="brand">Sponser</div>
+              <div class="company">Osotspa</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-351-1000</div></div><div class="info"><span>✉️</span><div>talktous@osotspa.com</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:023511000">📞 โทร</a>
+<a class="btn" href="mailto:talktous@osotspa.com">✉️ Email</a>
+<a class="btn" href="https://www.osotspa.com/en/contact" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="jelly me sand-m global เครื่องดื่มชูกำลัง" data-category="เครื่องดื่มชูกำลัง">
+          <div class="card-top">
+            <div>
+              <div class="brand">Jelly Me</div>
+              <div class="company">SAND-M Global</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-147-5132</div></div><div class="info"><span>✉️</span><div>cs@sandm.co.th</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:021475132">📞 โทร</a>
+<a class="btn" href="mailto:cs@sandm.co.th">✉️ Email</a>
+<a class="btn" href="https://sandm.co.th/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article></div>
+    </section>
+    <section class="category-section" data-category-section="น้ำดื่ม">
+      <div class="section-title" style="--section-bg:#e8f8ff">
+        <div class="icon">💧</div>
+        <div>
+          <h2>น้ำดื่ม</h2>
+          <div class="count">8 แบรนด์</div>
+        </div>
+      </div>
+      <div class="grid">
+        <article class="card" data-search="คริสตัล sermsuk น้ำดื่ม" data-category="น้ำดื่ม">
+          <div class="card-top">
+            <div>
+              <div class="brand">คริสตัล</div>
+              <div class="company">Sermsuk</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-783-9000</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:027839000">📞 โทร</a>
+<a class="btn" href="https://www.sermsukplc.com/ssc_web/index.php/contact" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="สิงห์โซดา boonrawd น้ำดื่ม" data-category="น้ำดื่ม">
+          <div class="card-top">
+            <div>
+              <div class="brand">สิงห์โซดา</div>
+              <div class="company">Boonrawd</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-242-4000</div></div><div class="info"><span>✉️</span><div>callcenter@boonrawd.co.th</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:022424000">📞 โทร</a>
+<a class="btn" href="mailto:callcenter@boonrawd.co.th">✉️ Email</a>
+<a class="btn" href="https://www.singhacorporation.com/en/contact-us" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="กาโตะ แบรนด์กาโตะ น้ำดื่ม" data-category="น้ำดื่ม">
+          <div class="card-top">
+            <div>
+              <div class="brand">กาโตะ</div>
+              <div class="company">แบรนด์กาโตะ</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Official / บริษัทเจ้าของแบรนด์</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article>
+        <article class="card" data-search="nestlé nestlé thailand น้ำดื่ม" data-category="น้ำดื่ม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Nestlé</div>
+              <div class="company">Nestlé Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 1162 / 02-657-8601</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:1162">📞 โทร</a>
+<a class="btn" href="https://www.nestle.co.th/en/info" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="sprinkle sprinkle น้ำดื่ม" data-category="น้ำดื่ม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Sprinkle</div>
+              <div class="company">Sprinkle</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-712-7272</div></div><div class="info"><span>✉️</span><div>info@sprinkle-th.com</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:027127272">📞 โทร</a>
+<a class="btn" href="mailto:info@sprinkle-th.com">✉️ Email</a>
+<a class="btn" href="https://sprinkle-th.com/th/contact" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="pepsi pepsico thailand น้ำดื่ม" data-category="น้ำดื่ม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Pepsi</div>
+              <div class="company">PepsiCo Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-610-2444</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:026102444">📞 โทร</a>
+<a class="btn" href="https://www.pepsico.co.th/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="est sermsuk น้ำดื่ม" data-category="น้ำดื่ม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Est</div>
+              <div class="company">Sermsuk</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-783-9000</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:027839000">📞 โทร</a>
+<a class="btn" href="https://www.sermsukplc.com/ssc_web/index.php/contact" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="loveza แบรนด์ loveza น้ำดื่ม" data-category="น้ำดื่ม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Loveza</div>
+              <div class="company">แบรนด์ Loveza</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Official / บริษัทเจ้าของแบรนด์</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article></div>
+    </section>
+    <section class="category-section" data-category-section="ยาดม">
+      <div class="section-title" style="--section-bg:#effaf1">
+        <div class="icon">🌿</div>
+        <div>
+          <h2>ยาดม</h2>
+          <div class="count">10 แบรนด์</div>
+        </div>
+      </div>
+      <div class="grid">
+        <article class="card" data-search="ตรามิ้น แบรนด์ตรามิ้น ยาดม" data-category="ยาดม">
+          <div class="card-top">
+            <div>
+              <div class="brand">ตรามิ้น</div>
+              <div class="company">แบรนด์ตรามิ้น</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Official / ผู้ผลิต</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article>
+        <article class="card" data-search="หงส์ไทย hong thai herb ยาดม" data-category="ยาดม">
+          <div class="card-top">
+            <div>
+              <div class="brand">หงส์ไทย</div>
+              <div class="company">Hong Thai Herb</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-803-1549</div></div><div class="info"><span>✉️</span><div>info@hongthaiherb.com</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:028031549">📞 โทร</a>
+<a class="btn" href="mailto:info@hongthaiherb.com">✉️ Email</a>
+<a class="btn" href="https://hongthaiherb.com/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="โป๊ยเซียน poysian ยาดม" data-category="ยาดม">
+          <div class="card-top">
+            <div>
+              <div class="brand">โป๊ยเซียน</div>
+              <div class="company">Poysian</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-399-2494-5 / 02-744-8497-8</div></div><div class="info"><span>✉️</span><div>infosales@gmppoysian.com</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:023992494">📞 โทร</a>
+<a class="btn" href="mailto:infosales@gmppoysian.com">✉️ Email</a>
+<a class="btn" href="https://www.poysian.co.th/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="ไทยดม iou / thaidom ยาดม" data-category="ยาดม">
+          <div class="card-top">
+            <div>
+              <div class="brand">ไทยดม</div>
+              <div class="company">IOU / ThaiDom</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 089-493-2477</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:0894932477">📞 โทร</a>
+<a class="btn" href="https://thaidombrand.com/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="โบว์แดง แบรนด์โบว์แดง ยาดม" data-category="ยาดม">
+          <div class="card-top">
+            <div>
+              <div class="brand">โบว์แดง</div>
+              <div class="company">แบรนด์โบว์แดง</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Official / ผู้ผลิต</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article>
+        <article class="card" data-search="หนุมาน inno brand ยาดม" data-category="ยาดม">
+          <div class="card-top">
+            <div>
+              <div class="brand">หนุมาน</div>
+              <div class="company">Inno Brand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 062-152-9651</div></div><div class="info"><span>✉️</span><div>hr.support@innobrand-th.com</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:0621529651">📞 โทร</a>
+<a class="btn" href="mailto:hr.support@innobrand-th.com">✉️ Email</a>
+          </div>
+        </article>
+        <article class="card" data-search="เพสเทล pastel ยาดม" data-category="ยาดม">
+          <div class="card-top">
+            <div>
+              <div class="brand">เพสเทล</div>
+              <div class="company">Pastel</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Official / Marketing</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article>
+        <article class="card" data-search="peppermint แบรนด์ peppermint ยาดม" data-category="ยาดม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Peppermint</div>
+              <div class="company">แบรนด์ Peppermint</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Official / ผู้ผลิต</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article>
+        <article class="card" data-search="มังกรทอง แบรนด์มังกรทอง ยาดม" data-category="ยาดม">
+          <div class="card-top">
+            <div>
+              <div class="brand">มังกรทอง</div>
+              <div class="company">แบรนด์มังกรทอง</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Official / ผู้ผลิต</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article>
+        <article class="card" data-search="peppermint field bertram (1958) ยาดม" data-category="ยาดม">
+          <div class="card-top">
+            <div>
+              <div class="brand">Peppermint Field</div>
+              <div class="company">Bertram (1958)</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-932-7051-2</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:029327051">📞 โทร</a>
+<a class="btn" href="https://www.bertram1958.com/en/peppermintfield/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article></div>
+    </section>
+    <section class="category-section" data-category-section="ครีมกันแดด">
+      <div class="section-title" style="--section-bg:#fff9df">
+        <div class="icon">☀️</div>
+        <div>
+          <h2>ครีมกันแดด</h2>
+          <div class="count">11 แบรนด์</div>
+        </div>
+      </div>
+      <div class="grid">
+        <article class="card" data-search="แพนนารี pannaree ครีมกันแดด" data-category="ครีมกันแดด">
+          <div class="card-top">
+            <div>
+              <div class="brand">แพนนารี</div>
+              <div class="company">Pannaree</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Official / Marketing</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article>
+        <article class="card" data-search="julaherb jula’s herb ครีมกันแดด" data-category="ครีมกันแดด">
+          <div class="card-top">
+            <div>
+              <div class="brand">Julaherb</div>
+              <div class="company">Jula’s Herb</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 086-369-7848</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:0863697848">📞 โทร</a>
+<a class="btn" href="https://www.julaherbshop.com/contactus" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="nivea beiersdorf thailand ครีมกันแดด" data-category="ครีมกันแดด">
+          <div class="card-top">
+            <div>
+              <div class="brand">Nivea</div>
+              <div class="company">Beiersdorf Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-460-7516</div></div><div class="info"><span>✉️</span><div>nivea.callcenter.thailand@beiersdorf.com</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:024607516">📞 โทร</a>
+<a class="btn" href="mailto:nivea.callcenter.thailand@beiersdorf.com">✉️ Email</a>
+<a class="btn" href="https://www.nivea.co.th/about-us/Imprint" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="biore kao thailand ครีมกันแดด" data-category="ครีมกันแดด">
+          <div class="card-top">
+            <div>
+              <div class="brand">Biore</div>
+              <div class="company">Kao Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-655-4483 / 02-655-4455</div></div><div class="info"><span>✉️</span><div>PR@kao.th.com</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:026554483">📞 โทร</a>
+<a class="btn" href="mailto:PR@kao.th.com">✉️ Email</a>
+<a class="btn" href="https://www.kao.com/th/en/support/contact.html" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="mizumi mizuhada ครีมกันแดด" data-category="ครีมกันแดด">
+          <div class="card-top">
+            <div>
+              <div class="brand">MizuMi</div>
+              <div class="company">Mizuhada</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>Marketing: 091-991-9299 / 02-212-4028</div></div><div class="info"><span>✉️</span><div>marketing@mizuhada.com</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:0919919299">📞 โทร</a>
+<a class="btn" href="mailto:marketing@mizuhada.com">✉️ Email</a>
+<a class="btn" href="https://mizumithailand.com/about-us/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="srichand srichand ครีมกันแดด" data-category="ครีมกันแดด">
+          <div class="card-top">
+            <div>
+              <div class="brand">Srichand</div>
+              <div class="company">Srichand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-300-1661</div></div><div class="info"><span>✉️</span><div>support@srichand.co.th</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:023001661">📞 โทร</a>
+<a class="btn" href="mailto:support@srichand.co.th">✉️ Email</a>
+<a class="btn" href="https://srichand.com/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="cute press cute press ครีมกันแดด" data-category="ครีมกันแดด">
+          <div class="card-top">
+            <div>
+              <div class="brand">Cute Press</div>
+              <div class="company">Cute Press</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-700-5600</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:027005600">📞 โทร</a>
+<a class="btn" href="https://global.cutepress.com/pages/contact" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="การ์นิเย่ l&#x27;oréal thailand ครีมกันแดด" data-category="ครีมกันแดด">
+          <div class="card-top">
+            <div>
+              <div class="brand">การ์นิเย่</div>
+              <div class="company">L&#x27;Oréal Thailand</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>โทร 02-684-3000 / Consumer Care 1496</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn primary" href="tel:026843000">📞 โทร</a>
+<a class="btn" href="https://www.loreal.com/en/thailand/" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="skintific skintific ครีมกันแดด" data-category="ครีมกันแดด">
+          <div class="card-top">
+            <div>
+              <div class="brand">Skintific</div>
+              <div class="company">Skintific</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>Email cs@skintific.com</div></div><div class="info"><span>✉️</span><div>cs@skintific.com</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn" href="mailto:cs@skintific.com">✉️ Email</a>
+<a class="btn" href="https://skintific.com/pages/faqs" target="_blank" rel="noopener">🌐 เว็บไซต์</a>
+          </div>
+        </article>
+        <article class="card" data-search="clearnose clear nose ครีมกันแดด" data-category="ครีมกันแดด">
+          <div class="card-top">
+            <div>
+              <div class="brand">Clearnose</div>
+              <div class="company">Clear Nose</div>
+            </div>
+            <span class="tag check">ต้องตรวจสอบ</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อช่องทางโฆษณา / Marketing</div></div>
+          </div>
+          <div class="actions">
+            
+          </div>
+        </article>
+        <article class="card" data-search="supermom supermom ครีมกันแดด" data-category="ครีมกันแดด">
+          <div class="card-top">
+            <div>
+              <div class="brand">Supermom</div>
+              <div class="company">Supermom</div>
+            </div>
+            <span class="tag ok">มีช่องทาง</span>
+          </div>
+          <div class="info-list">
+            <div class="info"><span>📞</span><div>ติดต่อ Business / Official</div></div><div class="info"><span>✉️</span><div>business@supermombusiness.com</div></div>
+          </div>
+          <div class="actions">
+            <a class="btn" href="mailto:business@supermombusiness.com">✉️ Email</a>
+          </div>
+        </article></div>
+    </section>
+  </div>
+
+  <div id="empty" class="empty">
+    <div style="font-size:40px">🔎</div>
+    <h3>ไม่พบแบรนด์</h3>
+    <p>ลองเปลี่ยนคำค้นหาหรือเลือกหมวดหมู่อื่น</p>
+  </div>
+</main>
+
+<footer>
+  ฐานข้อมูลสปอนเซอร์สำหรับการประสานงานกิจกรรมนิสิต • 54 แบรนด์ / 7 หมวดหมู่
+</footer>
+
+<script>
+const search = document.getElementById('search');
+const buttons = [...document.querySelectorAll('.filter')];
+const cards = [...document.querySelectorAll('.card')];
+const sections = [...document.querySelectorAll('.category-section')];
+const empty = document.getElementById('empty');
+const withContact = document.getElementById('withContact');
+
+withContact.textContent = cards.filter(c => c.querySelector('.tag.ok')).length;
+
+let activeFilter = 'all';
+
+function render() {
+  const q = search.value.trim().toLowerCase();
+  let shown = 0;
+
+  cards.forEach(card => {
+    const okCategory = activeFilter === 'all' || card.dataset.category === activeFilter;
+    const okSearch = !q || card.dataset.search.includes(q);
+    const show = okCategory && okSearch;
+    card.classList.toggle('hidden', !show);
+    if (show) shown++;
+  });
+
+  sections.forEach(section => {
+    const visibleCards = section.querySelectorAll('.card:not(.hidden)').length;
+    section.classList.toggle('hidden', visibleCards === 0);
+  });
+
+  empty.style.display = shown === 0 ? 'block' : 'none';
+}
+
+buttons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    buttons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeFilter = btn.dataset.filter;
+    render();
+  });
+});
+
+search.addEventListener('input', render);
+render();
+</script>
+</body>
+</html>
